@@ -1,0 +1,6 @@
+Debug/
+Release/
+ipch/
+*.*sdf
+*.suo
+*.vc*proj.*
