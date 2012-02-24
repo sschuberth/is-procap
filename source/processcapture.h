@@ -13,13 +13,17 @@ class ProcessCapture
     :   exe(exe)
     ,   args(1,arg)
     ,   in(ioservice)
-    {}
+    {
+        find_executable();
+    }
 
     ProcessCapture(const std::string& exe,const Arguments& args)
     :   exe(exe)
     ,   args(args)
     ,   in(ioservice)
-    {}
+    {
+        find_executable();
+    }
 
     void begin_read();
 
@@ -32,6 +36,10 @@ class ProcessCapture
     }
 
     void operator()() {
+        if (exe.empty()) {
+            return;
+        }
+
         // Replace STDOUT in the child process with an asynchronous pipe.
         boost::process::context ctx;
         ctx.streams[boost::process::stdout_id]=boost::process::behavior::async_pipe();
@@ -49,6 +57,18 @@ class ProcessCapture
     }
 
   private:
+
+    void find_executable() {
+        boost::system::error_code ec;
+        if (!boost::filesystem::exists(exe,ec)) {
+            try {
+                exe=boost::process::find_executable_in_path(exe);
+            }
+            catch (...) {
+                exe.clear();
+            }
+        }
+    }
 
     std::string exe;
     Arguments args;

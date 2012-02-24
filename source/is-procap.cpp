@@ -2,7 +2,7 @@
 
 int main()
 {
-    ProcessCapture procap(boost::process::find_executable_in_path("ping"),"www.heise.de");
+    ProcessCapture procap("ping","www.heise.de");
 
     procap();
 
