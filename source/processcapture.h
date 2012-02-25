@@ -1,3 +1,4 @@
+#include <boost/algorithm/string.hpp>
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
@@ -11,9 +12,9 @@ class ProcessCapture
 
     ProcessCapture(const std::string& exe,const std::string& arg="")
     :   exe(exe)
-    ,   args(1,arg)
     ,   in(ioservice)
     {
+        boost::split(args,arg,boost::is_space(),boost::token_compress_on);
         find_executable();
     }
 
