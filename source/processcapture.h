@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/process.hpp>
+#include <boost/thread.hpp>
 
 class ProcessCapture
 {
@@ -12,6 +13,7 @@ class ProcessCapture
 
     ProcessCapture()
     :   m_in(m_ioservice)
+    ,   m_ping_pong(0)
     {
     }
 
@@ -19,7 +21,19 @@ class ProcessCapture
         Arguments args;
         boost::split(args,arg,boost::is_space(),boost::token_compress_on);
 
-        run_process(find_executable(exe),args);
+        m_text[m_ping_pong].clear();
+        m_thread=boost::thread(&ProcessCapture::run_process,this,find_executable(exe),args);
+    }
+
+    bool is_running() {
+        return !m_thread.timed_join(boost::posix_time::milliseconds(0));
+    }
+
+    char const* read() {
+        char const* text=m_text[m_ping_pong].c_str();
+        m_ping_pong=(m_ping_pong+1)&1;
+        m_text[m_ping_pong].clear();
+        return text;
     }
 
   private:
@@ -65,7 +79,7 @@ class ProcessCapture
     void end_read(const boost::system::error_code &ec,std::size_t bytes_transferred) {
         if (!ec) {
             // If there is no error, process the output and re-register the handler.
-            std::cout << std::string(m_buffer.data(),bytes_transferred) << std::flush;
+            m_text[m_ping_pong]+=std::string(m_buffer.data(),bytes_transferred);
             begin_read();
         }
     }
@@ -74,6 +88,11 @@ class ProcessCapture
     boost::array<char,4096> m_buffer;
 
     boost::process::pipe m_in;
+
+    boost::thread m_thread;
+
+    int m_ping_pong;
+    std::string m_text[2];
 };
 
 inline void ProcessCapture::begin_read()
