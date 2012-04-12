@@ -30,7 +30,7 @@ bool __stdcall CaptureProcess(char const* executable,char const* arguments)
     s_procap=new ProcessCapture();
     s_procap->run(exe,arg);
 
-    return true;
+    return s_procap->is_running();
 }
 
 bool __stdcall GetProcessOutput(char const** text)
