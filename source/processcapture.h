@@ -11,7 +11,7 @@ class ProcessCapture
     typedef std::vector<std::string> Arguments;
 
     ProcessCapture()
-    :   in(ioservice)
+    :   m_in(m_ioservice)
     {
     }
 
@@ -53,11 +53,11 @@ class ProcessCapture
 
         // Assign the child's STDOUT handle to our pipe.
         boost::process::handle h=c.get_handle(boost::process::stdout_id);
-        in.assign(h.release());
+        m_in.assign(h.release());
 
         begin_read();
 
-        ioservice.run();
+        m_ioservice.run();
     }
 
     void begin_read();
@@ -65,22 +65,22 @@ class ProcessCapture
     void end_read(const boost::system::error_code &ec,std::size_t bytes_transferred) {
         if (!ec) {
             // If there is no error, process the output and re-register the handler.
-            std::cout << std::string(buffer.data(),bytes_transferred) << std::flush;
+            std::cout << std::string(m_buffer.data(),bytes_transferred) << std::flush;
             begin_read();
         }
     }
 
-    boost::asio::io_service ioservice;
-    boost::array<char,4096> buffer;
+    boost::asio::io_service m_ioservice;
+    boost::array<char,4096> m_buffer;
 
-    boost::process::pipe in;
+    boost::process::pipe m_in;
 };
 
 inline void ProcessCapture::begin_read()
 {
     // Register a handler for the asynchronous read.
-    in.async_read_some(
-        boost::asio::buffer(buffer)
+    m_in.async_read_some(
+        boost::asio::buffer(m_buffer)
     ,   boost::bind(&ProcessCapture::end_read,this,boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred)
     );
 }
