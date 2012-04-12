@@ -36,6 +36,7 @@ bool __stdcall CaptureProcess(char const* executable,char const* arguments)
 bool __stdcall GetProcessOutput(char const** text)
 {
     if (!s_procap) {
+        *text=NULL;
         return false;
     }
 
