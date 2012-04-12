@@ -4,7 +4,7 @@ int main()
 {
     ProcessCapture procap("ping","www.heise.de");
 
-    procap();
+    procap.run();
 
     system("pause");
 }

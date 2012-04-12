@@ -24,7 +24,7 @@ class ProcessCapture
     {
     }
 
-    void operator()() {
+    void run() {
         if (exe.empty()) {
             return;
         }
