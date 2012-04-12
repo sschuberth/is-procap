@@ -11,19 +11,17 @@ class ProcessCapture
     typedef std::vector<std::string> Arguments;
 
     ProcessCapture(const std::string& exe,const std::string& arg="")
-    :   exe(exe)
+    :   exe(find_executable(exe))
     ,   in(ioservice)
     {
         boost::split(args,arg,boost::is_space(),boost::token_compress_on);
-        find_executable();
     }
 
     ProcessCapture(const std::string& exe,const Arguments& args)
-    :   exe(exe)
+    :   exe(find_executable(exe))
     ,   args(args)
     ,   in(ioservice)
     {
-        find_executable();
     }
 
     void operator()() {
@@ -49,8 +47,9 @@ class ProcessCapture
 
   private:
 
-    void find_executable() {
+    static std::string find_executable(std::string exe) {
         boost::system::error_code ec;
+
         if (!boost::filesystem::exists(exe,ec)) {
             try {
                 exe=boost::process::find_executable_in_path(exe);
@@ -59,6 +58,8 @@ class ProcessCapture
                 exe.clear();
             }
         }
+
+        return exe;
     }
 
     void begin_read();
