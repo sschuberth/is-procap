@@ -1,3 +1,4 @@
 EXPORTS
-    CaptureProcess = _CaptureProcess@8
+    BeginProcessCapture = _BeginProcessCapture@8
     GetProcessOutput = _GetProcessOutput@4
+    EndProcessCapture = _EndProcessCapture@0

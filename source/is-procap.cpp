@@ -9,7 +9,7 @@ extern "C" {
  * the EXPORTS section of the .def file.
  */
 
-bool __stdcall CaptureProcess(char const* executable,char const* arguments)
+bool __stdcall BeginProcessCapture(char const* executable,char const* arguments)
 {
     if (s_procap) {
         return false;
@@ -40,15 +40,19 @@ bool __stdcall GetProcessOutput(char const** text)
         return false;
     }
 
-    if (!s_procap->is_running()) {
-        delete s_procap;
-        s_procap=NULL;
-        return false;
-    }
+    // Check the running state before reading the output to be sure output is
+    // read a last time after the thread has stopped running.
+    bool running=s_procap->is_running();
 
     *text=s_procap->read();
 
-    return true;
+    return running;
+}
+
+void __stdcall EndProcessCapture()
+{
+    delete s_procap;
+    s_procap=NULL;
 }
 
 }

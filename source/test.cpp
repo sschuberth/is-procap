@@ -3,23 +3,29 @@
 #include <stdlib.h>
 #include <windows.h>
 
-typedef bool (__stdcall *CaptureProcessPtr)(char const* exe,char const* arg);
-static CaptureProcessPtr CaptureProcess=NULL;
+typedef bool (__stdcall *BeginProcessCapturePtr)(char const* executable,char const* arguments);
+static BeginProcessCapturePtr BeginProcessCapture=NULL;
 
 typedef bool (__stdcall *GetProcessOutputPtr)(char const** text);
 static GetProcessOutputPtr GetProcessOutput=NULL;
+
+typedef void (__stdcall *EndProcessCapturePtr)();
+static EndProcessCapturePtr EndProcessCapture=NULL;
 
 int main()
 {
     HMODULE handle=LoadLibrary("is-procap.dll");
 
-    CaptureProcess=(CaptureProcessPtr)GetProcAddress(handle,"CaptureProcess");
-    assert(CaptureProcess);
+    BeginProcessCapture=(BeginProcessCapturePtr)GetProcAddress(handle,"BeginProcessCapture");
+    assert(BeginProcessCapture);
 
     GetProcessOutput=(GetProcessOutputPtr)GetProcAddress(handle,"GetProcessOutput");
     assert(GetProcessOutput);
 
-    CaptureProcess("ping","www.heise.de");
+    EndProcessCapture=(EndProcessCapturePtr)GetProcAddress(handle,"EndProcessCapture");
+    assert(EndProcessCapture);
+
+    BeginProcessCapture("ping","www.heise.de");
 
     OutputDebugString("*** BEGIN ***\n");
 
@@ -31,4 +37,6 @@ int main()
     }
 
     OutputDebugString("*** END ***\n");
+
+    EndProcessCapture();
 }
