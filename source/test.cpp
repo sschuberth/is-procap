@@ -21,10 +21,14 @@ int main()
 
     CaptureProcess("ping","www.heise.de");
 
+    OutputDebugString("*** BEGIN ***\n");
+
     char const* text;
     while (GetProcessOutput(&text)) {
         if (text) {
             OutputDebugString(text);
         }
     }
+
+    OutputDebugString("*** END ***\n");
 }
