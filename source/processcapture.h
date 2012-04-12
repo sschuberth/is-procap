@@ -10,21 +10,36 @@ class ProcessCapture
 
     typedef std::vector<std::string> Arguments;
 
-    ProcessCapture(const std::string& exe,const std::string& arg="")
-    :   exe(find_executable(exe))
-    ,   in(ioservice)
+    ProcessCapture()
+    :   in(ioservice)
     {
+    }
+
+    void run(const std::string& exe,const std::string& arg="") {
+        Arguments args;
         boost::split(args,arg,boost::is_space(),boost::token_compress_on);
+
+        run_process(find_executable(exe),args);
     }
 
-    ProcessCapture(const std::string& exe,const Arguments& args)
-    :   exe(find_executable(exe))
-    ,   args(args)
-    ,   in(ioservice)
-    {
+  private:
+
+    static std::string find_executable(std::string exe) {
+        boost::system::error_code ec;
+
+        if (!boost::filesystem::exists(exe,ec)) {
+            try {
+                exe=boost::process::find_executable_in_path(exe);
+            }
+            catch (...) {
+                exe.clear();
+            }
+        }
+
+        return exe;
     }
 
-    void run() {
+    void run_process(const std::string& exe,const Arguments& args) {
         if (exe.empty()) {
             return;
         }
@@ -45,23 +60,6 @@ class ProcessCapture
         ioservice.run();
     }
 
-  private:
-
-    static std::string find_executable(std::string exe) {
-        boost::system::error_code ec;
-
-        if (!boost::filesystem::exists(exe,ec)) {
-            try {
-                exe=boost::process::find_executable_in_path(exe);
-            }
-            catch (...) {
-                exe.clear();
-            }
-        }
-
-        return exe;
-    }
-
     void begin_read();
 
     void end_read(const boost::system::error_code &ec,std::size_t bytes_transferred) {
@@ -71,9 +69,6 @@ class ProcessCapture
             begin_read();
         }
     }
-
-    std::string exe;
-    Arguments args;
 
     boost::asio::io_service ioservice;
     boost::array<char,4096> buffer;

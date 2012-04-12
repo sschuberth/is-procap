@@ -2,9 +2,9 @@
 
 int main()
 {
-    ProcessCapture procap("ping","www.heise.de");
+    ProcessCapture procap;
 
-    procap.run();
+    procap.run("ping","www.heise.de");
 
     system("pause");
 }
