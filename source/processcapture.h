@@ -26,16 +26,6 @@ class ProcessCapture
         find_executable();
     }
 
-    void begin_read();
-
-    void end_read(const boost::system::error_code &ec,std::size_t bytes_transferred) {
-        if (!ec) {
-            // If there is no error, process the output and re-register the handler.
-            std::cout << std::string(buffer.data(),bytes_transferred) << std::flush;
-            begin_read();
-        }
-    }
-
     void operator()() {
         if (exe.empty()) {
             return;
@@ -68,6 +58,16 @@ class ProcessCapture
             catch (...) {
                 exe.clear();
             }
+        }
+    }
+
+    void begin_read();
+
+    void end_read(const boost::system::error_code &ec,std::size_t bytes_transferred) {
+        if (!ec) {
+            // If there is no error, process the output and re-register the handler.
+            std::cout << std::string(buffer.data(),bytes_transferred) << std::flush;
+            begin_read();
         }
     }
 
