@@ -1,0 +1,1 @@
+is-procap is a header-only library to capture the standard output from a command line application and make it available via a simple C API that can be used from within [Inno Setup](http://www.jrsoftware.org/isinfo.php)'s [Pascal Script](http://www.remobjects.com/ps) section in order to display it in the setup GUI as part of the installation process.
